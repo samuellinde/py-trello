@@ -131,6 +131,7 @@ class Card(TrelloBase):
         self.client = parent.client
         self.id = card_id
         self.name = name
+        self.custom_fields = None
 
     @classmethod
     def from_json(cls, parent, json_obj):
@@ -161,6 +162,8 @@ class Card(TrelloBase):
         card.idList = json_obj['idList']
         card.idShort = json_obj['idShort']
         card.labels = Label.from_json_list(card.board, json_obj['labels'])
+        if 'customFieldItems' in json_obj:
+            card.custom_fields = json_obj['customFieldItems']
         card.dateLastActivity = dateparser.parse(json_obj['dateLastActivity'])
         if "attachments" in json_obj:
             card._attachments = []
@@ -194,6 +197,10 @@ class Card(TrelloBase):
         self.idBoard = json_obj['idBoard']
         self.idLabels = json_obj['idLabels']
         self.labels = Label.from_json_list(self.board, json_obj['labels'])
+        if json_obj.get('customFieldItems', ''):
+            self.custom_fields = json_obj.get('customFieldItems', '')
+        else:
+            self.custom_fields = None
         self.badges = json_obj['badges']
         self.pos = json_obj['pos']
         if json_obj.get('due', ''):
@@ -513,6 +520,10 @@ class Card(TrelloBase):
     def set_description(self, description):
         self._set_remote_attribute('desc', description)
         self.desc = description
+    
+    def set_custom_fields(self, custom_fields):
+        self._set_remote_attribute('customFieldItems', custom_fields)
+        self.custom_fields = custom_fields
 
     def set_due(self, due):
         """Set the due time for the card
