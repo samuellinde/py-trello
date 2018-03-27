@@ -33,6 +33,13 @@ class Member(TrelloBase):
         self.initials = json_obj['initials']
         return self
 
+    def fetch_boards(self):
+        """ Fetches all the boards for this member """
+        boards = self.client.fetch_json(
+            '/members/' + self.id + '/boards',
+            query_params={'filter': 'open'})
+        return sorted(boards, key=lambda board: board['dateLastView'])
+
     def fetch_comments(self):
         if self.badges['comments'] > 0:
             comments = self.client.fetch_json(
